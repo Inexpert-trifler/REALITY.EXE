@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { GameProvider } from './context/GameContext';
 import { AppShell } from './components/layout/AppShell';
+import { GuestGate } from './components/auth/GuestGate';
 
 import { HomePage } from './pages/HomePage';
 import { QuestSetupPage } from './pages/QuestSetupPage';
@@ -15,22 +16,24 @@ import { ProfilePage } from './pages/ProfilePage';
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <GameProvider>
-        <AppShell>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/quest/setup" element={<QuestSetupPage />} />
-            <Route path="/quest/ready" element={<QuestReadyPage />} />
-            <Route path="/quest/pocket" element={<PocketModePage />} />
-            <Route path="/quest/return" element={<WelcomeBackPage />} />
-            <Route path="/quest/welcome" element={<WelcomeBackPage />} />
-            <Route path="/quest/verify" element={<VerificationPage />} />
-            <Route path="/quest/complete" element={<QuestCompletePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AppShell>
-      </GameProvider>
+      <GuestGate>
+        <GameProvider>
+          <AppShell>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/quest/setup" element={<QuestSetupPage />} />
+              <Route path="/quest/ready" element={<QuestReadyPage />} />
+              <Route path="/quest/pocket" element={<PocketModePage />} />
+              <Route path="/quest/return" element={<WelcomeBackPage />} />
+              <Route path="/quest/welcome" element={<WelcomeBackPage />} />
+              <Route path="/quest/verify" element={<VerificationPage />} />
+              <Route path="/quest/complete" element={<QuestCompletePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </AppShell>
+        </GameProvider>
+      </GuestGate>
     </BrowserRouter>
   );
 };
