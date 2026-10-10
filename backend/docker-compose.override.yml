@@ -1,0 +1,57 @@
+# =============================================================================
+# REALITY.EXE — docker-compose.override.yml
+#
+# Development overrides.  Docker Compose merges this file automatically
+# with docker-compose.yml when you run `docker compose up` in the same
+# directory.  It is intentionally NOT committed with production secrets.
+#
+# What this adds vs the base config:
+#   - Uses the `development` Dockerfile target (hot-reload, debug logging)
+#   - Mounts source code as a volume so edits are reflected immediately
+#   - Enables DEBUG and sets ENVIRONMENT=development
+#   - Exposes PostgreSQL to the host for local inspection with psql/DBeaver
+#   - Disables the AUTH_SECRET mandatory-set requirement (uses dev default)
+# =============================================================================
+
+services:
+
+  backend:
+    build:
+      # Override the target to build the development stage
+      target: development
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+      # Dev-safe AUTH_SECRET — long enough to pass validation
+      AUTH_SECRET: "dev-only-secret-do-not-use-in-production-at-all"
+      WORKERS: "1"
+      # AI provider — can point at a locally-running Ollama outside Docker
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    volumes:
+      # Hot-reload: mount source and scripts directly
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+      - ./scripts:/app/scripts
+      - ./tests:/app/tests
+      - ./pyproject.toml:/app/pyproject.toml
+      # Persist evidence uploads across hot-reloads without Docker volume overhead
+      - ./dev_evidence:/data/evidence
+    ports:
+      - "8000:8000"
+
+  db:
+    # Expose the DB port directly to the host in development for tools
+    # ports:
+    #  - "5433:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-reality_exe}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+      POSTGRES_DB: reality_exe
+
+  migrate:
+    environment:
+      SYNC_DATABASE_URL: postgresql://${POSTGRES_USER:-reality_exe}:${POSTGRES_PASSWORD:-devpassword}@db:5432/${POSTGRES_DB:-reality_exe}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-reality_exe}:${POSTGRES_PASSWORD:-devpassword}@db:5432/${POSTGRES_DB:-reality_exe}
+      AUTH_SECRET: "dev-only-secret-do-not-use-in-production-at-all"

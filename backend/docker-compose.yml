@@ -1,0 +1,213 @@
+# =============================================================================
+# REALITY.EXE — docker-compose.yml
+#
+# Production-oriented base configuration.
+# Development overrides live in docker-compose.override.yml (auto-applied
+# by `docker compose up` when the file exists).
+#
+# Usage:
+#   docker compose up              # production-like (uses .env)
+#   docker compose up -d           # detached
+#   docker compose down            # stop + remove containers
+#   docker compose down -v         # also remove volumes
+#   docker compose logs -f backend # follow backend logs
+#   docker compose exec backend bash
+#   docker compose --profile ollama up   # include the optional Ollama service
+#
+# Required: copy .env.docker to .env and fill in AUTH_SECRET at minimum.
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL database
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-reality_exe}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-reality_exe}
+      # Log only warnings and above in production
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # ports:
+    #   # Expose only on localhost — mapped to 5433 to avoid conflicts
+    #   - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-reality_exe} -d ${POSTGRES_DB:-reality_exe}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend_net
+
+  # ---------------------------------------------------------------------------
+  # Database migration runner (runs once, then exits)
+  # Ensures migrations are applied before the API server starts.
+  # ---------------------------------------------------------------------------
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: reality-exe-backend:latest
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      SYNC_DATABASE_URL: postgresql://${POSTGRES_USER:-reality_exe}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-reality_exe}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-reality_exe}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-reality_exe}
+      AUTH_SECRET: ${AUTH_SECRET:-super-secret-key-change-in-production-min-32-chars-length}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - backend_net
+
+  # ---------------------------------------------------------------------------
+  # REALITY.EXE backend API
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: reality-exe-backend:latest
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      # ── Application ───────────────────────────────────────────────────────
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DEBUG: "false"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WORKERS: ${WORKERS:-2}
+
+      # ── Database ──────────────────────────────────────────────────────────
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-reality_exe}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-reality_exe}
+      SYNC_DATABASE_URL: postgresql://${POSTGRES_USER:-reality_exe}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-reality_exe}
+
+      # ── Security (required) ───────────────────────────────────────────────
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET must be set in .env}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+
+      # ── AI provider ───────────────────────────────────────────────────────
+      # Point to the optional Ollama service (started with --profile ollama)
+      # or an external Ollama instance.
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      TEXT_MODEL: ${TEXT_MODEL:-llama3}
+      VISION_MODEL: ${VISION_MODEL:-llava}
+      AI_MAX_RETRIES: ${AI_MAX_RETRIES:-2}
+      AI_REQUEST_TIMEOUT_SECONDS: ${AI_REQUEST_TIMEOUT_SECONDS:-120}
+
+      # ── Storage ───────────────────────────────────────────────────────────
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      EVIDENCE_UPLOAD_DIR: /data/evidence
+      MAX_UPLOAD_SIZE_BYTES: ${MAX_UPLOAD_SIZE_BYTES:-10485760}
+      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-}
+
+      # ── CORS ──────────────────────────────────────────────────────────────
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["http://localhost:3000","http://localhost:5173"]}
+
+      # ── Chaos Mode ────────────────────────────────────────────────────────
+      CHAOS_MAX_CHAIN_DEPTH: ${CHAOS_MAX_CHAIN_DEPTH:-5}
+
+    volumes:
+      # Persistent local evidence storage (override with S3 env vars in prod)
+      - evidence_data:/data/evidence
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL",
+             "curl -fsS http://localhost:8000/health | python3 -c \"import sys,json; d=json.load(sys.stdin); sys.exit(0 if d['status'] in ('healthy','degraded') else 1)\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    networks:
+      - backend_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # Ollama local AI runtime (optional — start with --profile ollama)
+  #
+  # Usage:  docker compose --profile ollama up
+  #
+  # Model management:
+  #   docker compose exec ollama ollama pull llama3
+  #   docker compose exec ollama ollama pull llava
+  #   docker compose exec ollama ollama list
+  #
+  # Models are NOT pulled automatically to avoid downloading multi-GB files
+  # on every container start.  Pull them once manually and the data volume
+  # will persist across restarts.
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    profiles:
+      - ollama
+    restart: unless-stopped
+    ports:
+      # Expose only on localhost — do not expose publicly
+      - "127.0.0.1:11434:11434"
+    volumes:
+      # Persistent model storage — models survive container restarts
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:11434/api/version || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - backend_net
+    # Uncomment to enable GPU passthrough on a supported host:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  postgres_data:
+    driver: local
+    labels:
+      com.reality-exe.description: "PostgreSQL data — do not delete while running"
+
+  evidence_data:
+    driver: local
+    labels:
+      com.reality-exe.description: "Uploaded evidence files"
+
+  ollama_models:
+    driver: local
+    labels:
+      com.reality-exe.description: "Ollama model weights — large, persist across restarts"
+
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  backend_net:
+    driver: bridge

@@ -1,0 +1,69 @@
+# Version control
+.git
+.gitignore
+.github
+
+# Environment and secrets — never bake into the image
+.env
+.env.*
+!.env.example
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+.venv*
+
+# Test infrastructure (not needed in production image)
+tests/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+
+# Linting and type-checking caches
+.ruff_cache/
+.mypy_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# Build artefacts
+dist/
+build/
+*.egg-info/
+
+# Alembic test database (SQLite scratch file)
+*.db
+
+# Docker files (no need to copy into image)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# CI/CD
+.gitlab-ci.yml
+.github/
