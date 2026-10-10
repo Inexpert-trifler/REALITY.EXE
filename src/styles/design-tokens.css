@@ -1,0 +1,78 @@
+/* REALITY.EXE Centralized Design System Tokens */
+:root {
+  /* Colors */
+  --color-background: #F7F3E8;
+  --color-surface: #F7F3E8;
+  --color-surface-card: #FFFDF5;
+  --color-surface-low: #FFF1E8;
+  --color-surface-container: #FEEADC;
+  --color-surface-high: #F8E5D6;
+  --color-surface-highest: #F2DFD1;
+  --color-surface-dim: #E9D7C8;
+
+  --color-primary: #6FAF5F;
+  --color-primary-dark: #3F7042;
+  --color-primary-fixed: #B0F49C;
+  --color-primary-fixed-dim: #95D782;
+  --color-on-primary: #FFFDF5;
+
+  --color-secondary: #A9784F;
+  --color-secondary-dark: #80552F;
+  --color-secondary-light: #D8B892;
+  --color-secondary-container: #FDC394;
+  --color-secondary-fixed: #FFDCC2;
+
+  --color-tertiary: #E5B84B;
+  --color-tertiary-dark: #785A00;
+  --color-tertiary-container: #C49A2F;
+  --color-tertiary-fixed: #FFDF9B;
+
+  --color-sky: #8FC8D8;
+  --color-sky-light: #BFE5ED;
+
+  --color-ink: #2B2118;
+  --color-ink-dark: #231A11;
+  --color-muted: #6B5C4D;
+  --color-outline: #717A6C;
+
+  --color-track: #EFE8D3;
+  --color-danger: #BA1A1A;
+  --color-danger-container: #FFDAD6;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  /* Geometry & Borders */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  --border-thick: 2px solid #2B2118;
+  --shadow-card: 0 4px 0 0 #2B2118;
+  --shadow-quest: 0 6px 0 0 #2B2118;
+  --shadow-modal: 0 8px 0 0 #2B2118;
+  --shadow-primary-btn: 0 4px 0 0 #3F7042;
+  --shadow-secondary-btn: 0 4px 0 0 #A9784F;
+  --shadow-xp-btn: 0 4px 0 0 #B88526;
+}
+
+/* Custom scrollbars & global overrides */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.pixel-rendering {
+  image-rendering: pixelated;
+}
