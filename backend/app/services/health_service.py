@@ -22,7 +22,9 @@ class HealthService:
         settings = get_settings()
         db_status = "not_checked"
 
-        if db is not None:
+        if settings.DATABASE_MODE == "disabled":
+            db_status = "disabled"
+        elif db is not None:
             try:
                 # Execute simple ping query
                 result = await db.execute(text("SELECT 1"))
@@ -35,7 +37,7 @@ class HealthService:
                 db_status = "disconnected"
 
         uptime = round(time.time() - START_TIME, 2)
-        overall_status = "healthy" if db_status in ("connected", "not_checked") else "degraded"
+        overall_status = "healthy" if db_status in ("connected", "not_checked", "disabled") else "degraded"
 
         # In production, omit fingerprinting data (version, environment, uptime)
         # to reduce information leakage to unauthenticated callers.

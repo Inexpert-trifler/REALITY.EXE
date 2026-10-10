@@ -153,13 +153,16 @@ async def main() -> int:
 
     # ── 1. Database ──────────────────────────────────────────────────────────
     _header("Database")
-    db_ok, db_detail = await check_database(settings.DATABASE_URL)
-    if db_ok:
-        _ok("PostgreSQL", db_detail)
+    if settings.DATABASE_MODE == "disabled":
+        _warn("Database check skipped", "DATABASE_MODE is disabled")
     else:
-        _fail("PostgreSQL — cannot connect", db_detail)
-        _fail("Database is required. Aborting.")
-        exit_code = 1
+        db_ok, db_detail = await check_database(settings.DATABASE_URL)
+        if db_ok:
+            _ok("PostgreSQL", db_detail)
+        else:
+            _fail("PostgreSQL — cannot connect", db_detail)
+            _fail("Database is required. Aborting.")
+            exit_code = 1
 
     if exit_code:
         print()

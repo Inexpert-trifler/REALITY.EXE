@@ -8,7 +8,7 @@ The backend is built with FastAPI and runs on Docker. Render is ideal for hostin
 
 ### 1.1 Prerequisites
 - A Render account (https://render.com)
-- Your existing PostgreSQL database credentials
+- Optional: Your existing PostgreSQL database credentials (if running with persistence)
 
 ### 1.2 Create the Web Service
 1. In the Render Dashboard, click **New +** and select **Web Service**.
@@ -28,14 +28,20 @@ Under **Environment Variables**, add the following (do NOT commit these values t
 | `ENVIRONMENT` | `production` | **Required.** Must be `production`. |
 | `DEBUG` | `False` | **Required.** Must be `False`. |
 | `AUTH_SECRET` | `[YOUR_SECURE_SECRET]` | **Required.** A cryptographically secure random string (min 32 chars). |
-| `DATABASE_URL` | `[YOUR_DB_URL]` | **Required.** The `postgresql+asyncpg://...` URL for your existing database. |
-| `SYNC_DATABASE_URL` | `[YOUR_SYNC_DB_URL]`| **Required.** The `postgresql://...` URL (for Alembic migrations if needed). |
+| `DATABASE_MODE` | `disabled` | **Optional.** Set to `disabled` to run the application without any database. |
+| `DATABASE_URL` | `[YOUR_DB_URL]` | Required if `DATABASE_MODE` is enabled. The `postgresql+asyncpg://...` URL for your database. |
+| `SYNC_DATABASE_URL` | `[YOUR_SYNC_DB_URL]`| Required if `DATABASE_MODE` is enabled. The `postgresql://...` URL (for migrations). |
 | `ALLOWED_ORIGINS` | `["https://your-vercel-app.vercel.app"]` | **Required.** Update this with your actual Vercel frontend URL once deployed. |
 | `STORAGE_BACKEND` | `local` | **Warning: Render uses an ephemeral filesystem by default.** Evidence uploads saved to `local` will be permanently lost when the instance restarts or redeploys unless you attach a persistent disk (Render "Disk") to `/tmp/reality_exe_evidence`. For durable storage without a disk, you must configure S3 via `STORAGE_ENDPOINT` et al. |
 
 *Note on AI Features:* If you do not configure `OLLAMA_BASE_URL`, the backend gracefully degrades:
 - Quest Generation will serve deterministic, curated fallback quests.
 - Evidence Verification will return `UNCERTAIN` (requiring manual review) and gracefully prompt the user without awarding verified status or XP.
+
+*Note on Database-Disabled Mode (`DATABASE_MODE=disabled`):*
+- Health check endpoints (`/health`, `/api/v1/health`) will work and report the API is running with `database="disabled"`.
+- Features requiring persistence (quests state, XP, achievements) will gracefully return HTTP 503 errors and will not be silently mocked.
+- Do not attempt to use persistent endpoints without a database.
 
 ### 1.4 Deploy
 Click **Create Web Service**. Once deployed, Render will provide a URL (e.g., `https://reality-exe-backend.onrender.com`). Note this URL for the frontend configuration.

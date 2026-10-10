@@ -247,7 +247,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const attempt = await questsApi.start(currentQuest.id);
       setCurrentAttempt(attempt);
-    } catch {
+    } catch (err: any) {
+      if (err?.status === 503) {
+        alert("Cannot start quest: " + (err.message || "Database disabled"));
+        return;
+      }
       setCurrentAttempt({
         id: `att_${Date.now()}`,
         quest_id: currentQuest.id,
@@ -264,7 +268,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const attempt = await questsApi.pocket(currentQuest.id);
       setCurrentAttempt(attempt);
-    } catch {
+    } catch (err: any) {
+      if (err?.status === 503) {
+        alert("Cannot pocket quest: " + (err.message || "Database disabled"));
+        return;
+      }
       if (currentAttempt) {
         setCurrentAttempt({
           ...currentAttempt,
@@ -280,7 +288,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const attempt = await questsApi.returnFromPocket(currentQuest.id);
       setCurrentAttempt(attempt);
-    } catch {
+    } catch (err: any) {
+      if (err?.status === 503) {
+        alert("Cannot return from pocket: " + (err.message || "Database disabled"));
+        return;
+      }
       if (currentAttempt) {
         setCurrentAttempt({
           ...currentAttempt,
@@ -311,7 +323,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         await questsApi.complete(currentQuest.id);
-      } catch {
+      } catch (err: any) {
+        if (err?.status === 503) {
+          throw err;
+        }
         // Fallback for completion state
       }
 
@@ -349,9 +364,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setVerificationStatus('SUCCESS');
       setVerificationMessage(`Expedition Verified! Granted +${earnedXp} XP.`);
-    } catch {
+    } catch (err: any) {
       setVerificationStatus('ERROR');
-      setVerificationMessage("That evidence didn't make it through. Try submitting again?");
+      if (err?.status === 503) {
+        setVerificationMessage(err.message || "Database persistence is disabled in this environment.");
+      } else {
+        setVerificationMessage("That evidence didn't make it through. Try submitting again?");
+      }
     }
   };
 

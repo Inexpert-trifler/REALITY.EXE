@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import get_db
+from app.db.session import get_db, get_db_optional
 from app.schemas.health import HealthResponse
 from app.services.health_service import HealthService
 from app.api.dependencies import CurrentUser, get_text_provider, get_storage_provider
@@ -20,7 +20,7 @@ router = APIRouter(tags=["Health"])
         200: {"description": "Service is healthy or degraded"},
     },
 )
-async def get_health(db: AsyncSession = Depends(get_db)) -> HealthResponse:
+async def get_health(db: AsyncSession | None = Depends(get_db_optional)) -> HealthResponse:
     """Return the current health status of the API and its dependencies."""
     return await HealthService.get_health_status(db=db)
 
@@ -31,7 +31,7 @@ async def get_health(db: AsyncSession = Depends(get_db)) -> HealthResponse:
     status_code=status.HTTP_200_OK,
     summary="Service health check (v1)",
 )
-async def get_health_v1(db: AsyncSession = Depends(get_db)) -> HealthResponse:
+async def get_health_v1(db: AsyncSession | None = Depends(get_db_optional)) -> HealthResponse:
     return await HealthService.get_health_status(db=db)
 
 
@@ -40,7 +40,7 @@ async def get_health_v1(db: AsyncSession = Depends(get_db)) -> HealthResponse:
     status_code=status.HTTP_200_OK,
     summary="Database health check",
 )
-async def get_db_health(db: AsyncSession = Depends(get_db)) -> dict:
+async def get_db_health(db: AsyncSession | None = Depends(get_db_optional)) -> dict:
     health = await HealthService.get_health_status(db=db)
     if health.database == "error":
         from fastapi import HTTPException
