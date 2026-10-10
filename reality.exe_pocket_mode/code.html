@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REALITY.EXE - Pocket Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ground: '#F7F3E8',
+            'grass-green': '#6FAF5F',
+            'dark-green': '#3F7042',
+            'deep-forest': '#234426',
+            'dirt-brown': '#A9784F',
+            'soft-brown': '#D8B892',
+            'sky-blue': '#8FC8D8',
+            'xp-gold': '#E5B84B',
+            'card-cream': '#FFFDF5',
+          },
+          fontFamily: {
+            pixel: ['"Silkscreen"', '"Press Start 2P"', 'monospace'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+            body: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          boxShadow: {
+            'pixel-sm': '0 2px 0 0 #3F7042',
+            'pixel-md': '0 4px 0 0 #3F7042',
+            'pixel-soft': '0 4px 0 0 #D8B892',
+            'pixel-inset': 'inset 0 -2px 0 0 rgba(0,0,0,0.12)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Pixel border helper */
+    .pixel-border-soft {
+      border: 2px solid #D8B892;
+    }
+    .pixel-border-dark {
+      border: 2px solid #3F7042;
+    }
+    .pixel-border-deep {
+      border: 3px solid #234426;
+    }
+    
+    /* Gentle, calm ambient animations */
+    @keyframes slowDrift {
+      0% { transform: translateX(0px); }
+      50% { transform: translateX(8px); }
+      100% { transform: translateX(0px); }
+    }
+    @keyframes gentleSway {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(2deg); }
+    }
+    @keyframes softPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(0.92); }
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+      50% { transform: translateY(-5px) rotate(4deg); opacity: 1; }
+      100% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+    }
+
+    .anim-drift { animation: slowDrift 8s ease-in-out infinite; }
+    .anim-sway { animation: gentleSway 5s ease-in-out infinite; transform-origin: bottom center; }
+    .anim-pulse-slow { animation: softPulse 2.5s ease-in-out infinite; }
+    .anim-float { animation: floatParticle 4s ease-in-out infinite; }
+
+    /* Crisp pixel rendering */
+    .pixelated {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+  </style>
+</head>
+<body class="bg-ground text-[#2C2416] font-body min-h-screen flex items-center justify-center p-0 sm:p-4 selection:bg-grass-green selection:text-white">
+
+  <!-- Mobile Screen Container (390 x 844 target) -->
+  <main class="w-full max-w-[412px] min-h-screen sm:min-h-[844px] bg-ground flex flex-col justify-between p-5 sm:p-6 sm:rounded-3xl sm:border-[3px] sm:border-dark-green sm:shadow-2xl relative overflow-hidden">
+    
+    <!-- Ambient subtle pixel backdrop artifacts (minimal, intentional, breathing room) -->
+    <div class="absolute -top-4 -right-4 w-28 h-28 bg-[#FFF8EC] rounded-full blur-2xl pointer-events-none opacity-60"></div>
+    <div class="absolute bottom-16 -left-8 w-32 h-32 bg-[#EAF5E4] rounded-full blur-2xl pointer-events-none opacity-60"></div>
+
+    <!-- ============================================== -->
+    <!-- 1. TOP STATUS AREA (Strictly Minimal, No Nav) -->
+    <!-- ============================================== -->
+    <header class="w-full flex items-center justify-between pt-1 pb-3 relative z-10">
+      <!-- App Brandmark + Leaf Pixel -->
+      <div class="flex items-center gap-2">
+        <!-- Tiny custom pixel leaf icon -->
+        <svg class="w-4 h-4 text-grass-green pixelated" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M7 2h2v2H7zM9 4h2v2H9zM11 6h2v2h-2zM11 8h2v2h-2zM9 10h2v2H9zM7 12h2v2H7zM5 10h2v2H5zM3 8h2v2H3zM3 6h2v2H3zM5 4h2v2H5zM7 4h2v8H7z" />
+        </svg>
+        <span class="font-pixel text-[11px] tracking-wider text-dark-green font-bold">REALITY.EXE</span>
+      </div>
+
+      <!-- Live Quest Status Pill -->
+      <div class="flex items-center gap-1.5 px-2.5 py-1 bg-card-cream rounded-full border border-dark-green/30 shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-grass-green anim-pulse-slow"></span>
+        <span class="font-pixel text-[9px] text-dark-green tracking-wide uppercase font-bold">QUEST ACTIVE</span>
+      </div>
+    </header>
+
+    <!-- ============================================== -->
+    <!-- 2. CENTER STAGE (Illustration + Directives) -->
+    <!-- ============================================== -->
+    <section class="flex-1 flex flex-col items-center justify-center text-center my-auto py-4 relative z-10">
+
+      <!-- Tiny Peaceful Pixel-Art Outdoor Vignette (Grass, Flower, Tree, Path leading into distance) -->
+      <div class="relative w-full max-w-[280px] h-[130px] mb-6 rounded-2xl bg-[#EAF4F7] border-2 border-soft-brown/80 shadow-pixel-soft overflow-hidden flex items-end justify-center">
+        
+        <!-- Sky & Clouds Layer -->
+        <div class="absolute inset-x-0 top-0 h-full bg-gradient-to-b from-[#D4ECF4] to-[#EAF4F7]">
+          <!-- Pixel Cloud 1 -->
+          <div class="absolute top-3 left-4 anim-drift opacity-90">
+            <svg class="w-10 h-5 text-white pixelated" viewBox="0 0 40 20" fill="currentColor">
+              <path d="M10 8h20v8H10zM6 12h28v4H6zM14 4h12v4H14z" />
+            </svg>
+          </div>
+          <!-- Pixel Cloud 2 -->
+          <div class="absolute top-6 right-6 anim-drift opacity-75" style="animation-delay: -3s;">
+            <svg class="w-8 h-4 text-white pixelated" viewBox="0 0 32 16" fill="currentColor">
+              <path d="M8 6h16v6H8zM4 9h24v3H4zM12 3h8v3h-8z" />
+            </svg>
+          </div>
+          <!-- Warm subtle sun glint block -->
+          <div class="absolute top-3 right-14 w-3 h-3 bg-xp-gold/60 rounded-sm"></div>
+        </div>
+
+        <!-- Distant Pixel Horizon & Rolling Hills -->
+        <svg class="absolute bottom-0 inset-x-0 w-full h-[62px] pixelated" viewBox="0 0 280 62" fill="none">
+          <!-- Far hills -->
+          <path d="M0 62V34C35 34 50 26 95 26C140 26 160 38 215 38C255 38 270 32 280 32V62H0Z" fill="#9CC890" />
+          <!-- Mid grassy ground -->
+          <path d="M0 62V42C40 42 75 36 120 36C175 36 210 44 280 44V62H0Z" fill="#6FAF5F" />
+          
+          <!-- Dirt/Gravel meandering path leading out into the distance -->
+          <path d="M125 36H135L148 62H110L125 36Z" fill="#D8B892" />
+          <path d="M128 38H133L142 62H118L128 38Z" fill="#C9A37A" />
+          
+          <!-- Pixel Tree on the Right -->
+          <!-- Trunk -->
+          <rect x="206" y="24" width="8" height="24" fill="#845934" />
+          <!-- Canopy blocks -->
+          <rect x="194" y="10" width="32" height="18" rx="2" fill="#3F7042" />
+          <rect x="198" y="4" width="24" height="14" rx="2" fill="#4B854E" />
+          <rect x="202" y="8" width="10" height="8" fill="#6FAF5F" />
+
+          <!-- Tiny Pixel Flora & Flowers on the Left -->
+          <!-- Flower 1 (XP Gold) -->
+          <rect x="52" y="46" width="2" height="6" fill="#3F7042" />
+          <rect x="50" y="43" width="6" height="4" fill="#E5B84B" />
+          <rect x="52" y="44" width="2" height="2" fill="#FFF" />
+          
+          <!-- Flower 2 (Soft Red/Berry) -->
+          <rect x="74" y="48" width="2" height="6" fill="#3F7042" />
+          <rect x="72" y="45" width="6" height="4" fill="#D96E5A" />
+
+          <!-- Small smooth pixel stone near path -->
+          <rect x="94" y="52" width="7" height="4" rx="1" fill="#8E9B97" />
+          <rect x="96" y="51" width="3" height="2" fill="#B0BCB8" />
+
+          <!-- Tiny grass blade tufts -->
+          <path d="M28 50h2v4h-2zM32 48h2v6h-2z" fill="#3F7042" />
+          <path d="M172 49h2v5h-2zM175 47h2v7h-2z" fill="#3F7042" />
+        </svg>
+
+        <!-- Floating subtle leaf particle -->
+        <div class="absolute bottom-8 left-16 anim-float pointer-events-none">
+          <div class="w-1.5 h-1.5 bg-grass-green rounded-sm rotate-45"></div>
+        </div>
+
+        <!-- Overworld Horizon Invitation badge -->
+        <div class="absolute top-2 left-2.5 px-2 py-0.5 rounded bg-white/80 border border-soft-brown/60 backdrop-blur-xs flex items-center gap-1 shadow-xs">
+          <span class="w-1.5 h-1.5 bg-grass-green rounded-full"></span>
+          <span class="font-pixel text-[8px] text-dark-green tracking-wide uppercase font-semibold">OVERWORLD ACTIVE</span>
+        </div>
+      </div>
+
+      <!-- MAIN DEFINING MESSAGES -->
+      <div class="space-y-1.5 mb-5 px-2">
+        <h2 class="font-pixel text-[13px] sm:text-[14px] text-grass-green tracking-widest uppercase font-bold">
+          [ QUEST IN PROGRESS ]
+        </h2>
+        
+        <!-- The Definitive Directive -->
+        <h1 class="font-pixel text-[24px] sm:text-[26px] leading-[1.25] text-deep-forest font-bold tracking-tight">
+          PUT THE PHONE<br>AWAY.
+        </h1>
+
+        <!-- Secondary Warm Reassurance -->
+        <div class="pt-2 max-w-[290px] mx-auto space-y-1">
+          <p class="font-body text-[14px] sm:text-[15px] font-semibold text-dark-green leading-snug">
+            Your adventure is happening out there.
+          </p>
+          <p class="font-body text-[12px] sm:text-[13px] text-[#7A6B56] leading-normal italic">
+            Don’t worry. I’ll still be here when you get back.
+          </p>
+        </div>
+      </div>
+
+      <!-- TIMER MODULE (Minimal, Calm Countdown) -->
+      <div class="w-full max-w-[260px] bg-card-cream rounded-xl border-2 border-soft-brown/90 shadow-pixel-soft px-4 py-3 mb-4 flex flex-col items-center">
+        <!-- Live Time Display -->
+        <div class="flex items-baseline justify-center gap-1 font-pixel text-deep-forest">
+          <span class="text-[28px] sm:text-[30px] tracking-widest font-bold tabular-nums">18:42</span>
+        </div>
+        <!-- Label -->
+        <div class="flex items-center gap-1.5 mt-0.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-xp-gold"></span>
+          <span class="font-pixel text-[9px] text-[#8C7A64] tracking-wider uppercase font-semibold">REMAINING EXPEDITION TIME</span>
+        </div>
+      </div>
+
+      <!-- QUEST REMINDER (Compact Mission Brief) -->
+      <div class="w-full max-w-[280px] bg-[#FFF8EE] rounded-xl border border-soft-brown/70 p-3 text-left flex items-start gap-2.5 shadow-xs">
+        <!-- Compass/Pin icon -->
+        <div class="mt-0.5 w-6 h-6 rounded-md bg-card-cream border border-soft-brown/60 flex items-center justify-center shrink-0 text-grass-green shadow-pixel-inset">
+          <svg class="w-3.5 h-3.5 pixelated" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a5 5 0 110 10A5 5 0 018 3zm2 4l-4 1 1-4 4-1-1 4z" />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-1.5">
+            <span class="font-pixel text-[9px] text-dark-green uppercase font-bold tracking-wider">MISSION OBJECTIVE</span>
+            <span class="text-[9px] text-[#A69177] font-pixel">#013</span>
+          </div>
+          <p class="font-body text-[12px] text-deep-forest font-medium mt-0.5 leading-snug">
+            “Find something in your surroundings that you’ve never noticed before.”
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 3. BOTTOM ACTION AREA (Subtle & Safe) -->
+    <!-- ============================================== -->
+    <footer class="w-full pt-2 pb-1 flex flex-col items-center gap-2.5 relative z-10">
+      
+      <!-- Gentle Return Action (Subtle cream button with soft brown/green pixel border, not an aggressive primary CTA) -->
+      <button 
+        type="button"
+        class="w-full max-w-[280px] py-3.5 px-4 bg-card-cream hover:bg-[#FFF9EA] active:translate-y-0.5 rounded-xl border-2 border-dark-green/60 shadow-pixel-soft flex items-center justify-center gap-2 transition-all cursor-pointer group"
+      >
+        <!-- Tiny return pixel icon -->
+        <svg class="w-4 h-4 text-dark-green pixelated group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6 3h2v2H6zM4 5h2v2H4zM2 7h2v2H2zM4 9h2v2H4zM6 11h2v2H6zM8 7h6v2H8z" />
+        </svg>
+        <span class="font-pixel text-[13px] text-dark-green tracking-wider font-bold">
+          [ I'M BACK ]
+        </span>
+      </button>
+
+      <!-- Safety & Real-World Presence Reassurance Microcopy -->
+      <div class="flex items-center justify-center gap-1.5 text-center">
+        <!-- Tiny leaf bullet -->
+        <span class="text-grass-green text-[10px]">◆</span>
+        <p class="font-body text-[11px] text-[#8C7A64] tracking-wide font-medium">
+          Look up, stay safe, and enjoy your physical world.
+        </p>
+        <span class="text-grass-green text-[10px]">◆</span>
+      </div>
+
+    </footer>
+
+  </main>
+
+  <!-- Lightweight, calm countdown script to make the timer feel alive without being intrusive -->
+  <script>
+    (function() {
+      // 18 minutes 42 seconds starting count
+      let totalSeconds = 18 * 60 + 42;
+      const timerElement = document.querySelector('span.tabular-nums');
+
+      function updateTimer() {
+        if (!timerElement || totalSeconds <= 0) return;
+        totalSeconds--;
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        const formatted = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        timerElement.textContent = formatted;
+      }
+
+      // Tick every 1 second
+      setInterval(updateTimer, 1000);
+    })();
+  </script>
+
+</body>
+</html>
