@@ -28,30 +28,58 @@ export const QuestCompletePage: React.FC = () => {
       <AppHeader title="QUEST COMPLETE" />
 
       <main className="flex-1 p-4 flex flex-col gap-4 max-w-[480px] md:max-w-3xl mx-auto w-full">
-        {/* Victory Celebration Header */}
-        <PixelCard shadowSize="lg" className="text-center py-6 bg-gradient-to-b from-[#FFFDF5] to-[#FFF1E8]">
-          <div className="w-16 h-16 rounded-xl bg-[#E5B84B] border-2 border-[#2B2118] text-[#2B2118] flex items-center justify-center text-[36px] mx-auto mb-2 shadow-[0_4px_0_0_#B88526] animate-bounce">
-            🏆
-          </div>
+        {/* Victory / Pending Header */}
+        {useGame().verificationStatus === 'SUCCESS' ? (
+          <PixelCard shadowSize="lg" className="text-center py-6 bg-gradient-to-b from-[#FFFDF5] to-[#FFF1E8]">
+            <div className="w-16 h-16 rounded-xl bg-[#E5B84B] border-2 border-[#2B2118] text-[#2B2118] flex items-center justify-center text-[36px] mx-auto mb-2 shadow-[0_4px_0_0_#B88526] animate-bounce">
+              🏆
+            </div>
 
-          <PixelBadge variant="xp" icon="military_tech" size="md" className="mb-2">
-            VICTORY
-          </PixelBadge>
+            <PixelBadge variant="xp" icon="military_tech" size="md" className="mb-2">
+              VICTORY
+            </PixelBadge>
 
-          <h1 className="font-headline-lg text-[26px] uppercase text-[#2B2118] tracking-tight">
-            QUEST COMPLETE!
-          </h1>
-          <p className="font-headline-md text-[18px] uppercase text-[#3F7042] mt-1 font-bold">
-            {currentQuest?.title || 'THE HIDDEN PATCH'}
-          </p>
+            <h1 className="font-headline-lg text-[26px] uppercase text-[#2B2118] tracking-tight">
+              QUEST COMPLETE!
+            </h1>
+            <p className="font-headline-md text-[18px] uppercase text-[#3F7042] mt-1 font-bold">
+              {currentQuest?.title || 'THE HIDDEN PATCH'}
+            </p>
 
-          <div className="mt-4 p-3 rounded-lg bg-[#FFFDF5] border-2 border-[#2B2118] inline-flex items-center gap-2 shadow-[0_2px_0_0_#2B2118]">
-            <span className="text-[20px]">⭐</span>
-            <span className="font-headline-lg text-[22px] text-[#C49A2F] uppercase">
-              +{currentQuest?.xp_reward || 250} XP GAINED
-            </span>
-          </div>
-        </PixelCard>
+            <div className="mt-4 p-3 rounded-lg bg-[#FFFDF5] border-2 border-[#2B2118] inline-flex items-center gap-2 shadow-[0_2px_0_0_#2B2118]">
+              <span className="text-[20px]">⭐</span>
+              <span className="font-headline-lg text-[22px] text-[#C49A2F] uppercase">
+                +{currentQuest?.xp_reward || 250} XP GAINED
+              </span>
+            </div>
+          </PixelCard>
+        ) : (
+          <PixelCard shadowSize="lg" className="text-center py-6 bg-gradient-to-b from-[#FFFDF5] to-[#EAEAEA]">
+            <div className="w-16 h-16 rounded-xl bg-[#A9784F] border-2 border-[#2B2118] text-[#FFFDF5] flex items-center justify-center text-[36px] mx-auto mb-2 shadow-[0_4px_0_0_#6B5C4D]">
+              ⏳
+            </div>
+
+            <PixelBadge variant="secondary" icon="pending_actions" size="md" className="mb-2">
+              UNVERIFIED
+            </PixelBadge>
+
+            <h1 className="font-headline-lg text-[22px] uppercase text-[#2B2118] tracking-tight">
+              PENDING MANUAL REVIEW
+            </h1>
+            <p className="font-headline-md text-[16px] uppercase text-[#6B5C4D] mt-1 font-bold">
+              {currentQuest?.title || 'THE HIDDEN PATCH'}
+            </p>
+
+            <div className="mt-4 p-3 rounded-lg bg-[#FFFDF5] border-2 border-[#2B2118] inline-flex flex-col items-center shadow-[0_2px_0_0_#2B2118]">
+              <span className="font-body-sm text-[12px] text-[#6B5C4D]">
+                XP WILL BE AWARDED UPON APPROVAL
+              </span>
+              <span className="font-headline-lg text-[18px] text-[#A9784F] uppercase mt-1">
+                POTENTIAL +{currentQuest?.xp_reward || 250} XP
+              </span>
+            </div>
+          </PixelCard>
+        )}
 
         {/* Level & XP Progress Card */}
         <PixelCard shadowSize="md">

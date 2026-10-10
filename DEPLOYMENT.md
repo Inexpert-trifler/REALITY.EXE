@@ -31,11 +31,11 @@ Under **Environment Variables**, add the following (do NOT commit these values t
 | `DATABASE_URL` | `[YOUR_DB_URL]` | **Required.** The `postgresql+asyncpg://...` URL for your existing database. |
 | `SYNC_DATABASE_URL` | `[YOUR_SYNC_DB_URL]`| **Required.** The `postgresql://...` URL (for Alembic migrations if needed). |
 | `ALLOWED_ORIGINS` | `["https://your-vercel-app.vercel.app"]` | **Required.** Update this with your actual Vercel frontend URL once deployed. |
-| `STORAGE_BACKEND` | `local` | Temporary evidence storage unless using S3. |
+| `STORAGE_BACKEND` | `local` | **Warning: Render uses an ephemeral filesystem by default.** Evidence uploads saved to `local` will be permanently lost when the instance restarts or redeploys unless you attach a persistent disk (Render "Disk") to `/tmp/reality_exe_evidence`. For durable storage without a disk, you must configure S3 via `STORAGE_ENDPOINT` et al. |
 
 *Note on AI Features:* If you do not configure `OLLAMA_BASE_URL`, the backend gracefully degrades:
 - Quest Generation will serve deterministic, curated fallback quests.
-- Evidence Verification will return `UNCERTAIN` and gracefully prompt the user.
+- Evidence Verification will return `UNCERTAIN` (requiring manual review) and gracefully prompt the user without awarding verified status or XP.
 
 ### 1.4 Deploy
 Click **Create Web Service**. Once deployed, Render will provide a URL (e.g., `https://reality-exe-backend.onrender.com`). Note this URL for the frontend configuration.
