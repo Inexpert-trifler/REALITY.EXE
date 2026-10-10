@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
 
     # Database
-    DATABASE_MODE: str = "enabled"
+    DATABASE_MODE: str = "disabled"
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/reality_exe"
     SYNC_DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/reality_exe"
 
