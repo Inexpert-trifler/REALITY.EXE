@@ -1,0 +1,50 @@
+@import './design-tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F7F3E8;
+    color: #2B2118;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+/* Custom Neo-Brutalist Pixel Helper Classes */
+.pixel-border {
+  border: 2px solid #2B2118;
+}
+
+.pixel-shadow-sm {
+  box-shadow: 0 2px 0 0 #2B2118;
+}
+
+.pixel-shadow-md {
+  box-shadow: 0 4px 0 0 #2B2118;
+}
+
+.pixel-shadow-lg {
+  box-shadow: 0 6px 0 0 #2B2118;
+}
+
+.pixel-shadow-xl {
+  box-shadow: 0 8px 0 0 #2B2118;
+}
+
+.pixel-btn-active:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 transparent !important;
+}
+
+.pixel-btn-active-sm:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 0 transparent !important;
+}
