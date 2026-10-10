@@ -148,7 +148,7 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
-    @app.get("/", tags=["Root"], include_in_schema=False)
+    @app.api_route("/", methods=["GET", "HEAD"], tags=["Root"], include_in_schema=False)
     async def root():
         return {
             "name": settings.PROJECT_NAME,
