@@ -1,4 +1,15 @@
-const API_BASE_URL = '/api/v1';
+const ENV_API_URL = import.meta.env.VITE_API_BASE_URL;
+
+if (import.meta.env.PROD && !ENV_API_URL) {
+  console.error(
+    "Missing VITE_API_BASE_URL environment variable. " +
+    "API requests will fail. Please configure this in Vercel."
+  );
+}
+
+// Fallback to /api/v1 for local development (which uses Vite proxy)
+const BASE_URL = ENV_API_URL ? ENV_API_URL.replace(/\/+$/, '') : '';
+const API_BASE_URL = `${BASE_URL}/api/v1`;
 
 export class ApiError extends Error {
   status: number;
