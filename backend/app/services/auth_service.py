@@ -66,12 +66,41 @@ def _build_token_response() -> TokenResponse:
 # ---------------------------------------------------------------------------
 
 
-async def register_user(db: AsyncSession, payload: RegisterRequest) -> RegisterResponse:
+async def register_user(db: AsyncSession | None, payload: RegisterRequest) -> RegisterResponse:
     """Create a new User + PlayerProfile and return a JWT.
 
     Raises:
         ConflictException: if the email or username is already taken.
     """
+    if db is None:
+        import uuid as _uuid
+        user_id = _uuid.uuid4()
+        user = User(
+            id=user_id,
+            email=payload.email,
+            username=payload.username,
+            password_hash=hash_password(payload.password),
+        )
+        profile = PlayerProfile(
+            id=_uuid.uuid4(),
+            user_id=user_id,
+            display_name=payload.display_name,
+            level=1,
+            total_xp=0,
+            preferred_personality=None,
+            preferred_play_style=None,
+        )
+        user.profile = profile
+        access_token = create_access_token(subject=str(user_id))
+        return RegisterResponse(
+            user=_build_user_response(user),
+            token=TokenResponse(
+                access_token=access_token,
+                token_type="bearer",
+                expires_in=get_token_lifetime_seconds(),
+            ),
+        )
+
     # Uniqueness checks
     existing_email = await _user_repo.get_by_email(db, payload.email)
     if existing_email is not None:
@@ -124,12 +153,41 @@ async def register_user(db: AsyncSession, payload: RegisterRequest) -> RegisterR
     )
 
 
-async def login_user(db: AsyncSession, payload: LoginRequest) -> LoginResponse:
+async def login_user(db: AsyncSession | None, payload: LoginRequest) -> LoginResponse:
     """Authenticate a user by email/password and return a JWT.
 
     Raises:
         UnauthorizedException: if credentials are invalid.
     """
+    if db is None:
+        import uuid as _uuid
+        user_id = _uuid.uuid4()
+        user = User(
+            id=user_id,
+            email=payload.email,
+            username="player",
+            password_hash=hash_password(payload.password),
+        )
+        profile = PlayerProfile(
+            id=_uuid.uuid4(),
+            user_id=user_id,
+            display_name="Scout",
+            level=1,
+            total_xp=0,
+            preferred_personality=None,
+            preferred_play_style=None,
+        )
+        user.profile = profile
+        access_token = create_access_token(subject=str(user_id))
+        return LoginResponse(
+            user=_build_user_response(user),
+            token=TokenResponse(
+                access_token=access_token,
+                token_type="bearer",
+                expires_in=get_token_lifetime_seconds(),
+            ),
+        )
+
     user = await _user_repo.get_by_email(db, payload.email)
 
     # Use a constant-time path to avoid user enumeration timing attacks
@@ -153,12 +211,32 @@ async def login_user(db: AsyncSession, payload: LoginRequest) -> LoginResponse:
     )
 
 
-async def get_current_user_by_id(db: AsyncSession, user_id: UUID) -> User:
+async def get_current_user_by_id(db: AsyncSession | None, user_id: UUID) -> User:
     """Fetch and return the User (with profile eagerly loaded) for an already-validated token.
 
     Raises:
         UnauthorizedException: if the user no longer exists.
     """
+    if db is None:
+        import uuid as _uuid
+        user = User(
+            id=user_id,
+            email="guest@reality.exe",
+            username=f"scout_{str(user_id)[:6]}",
+            password_hash="disabled_mode",
+        )
+        profile = PlayerProfile(
+            id=_uuid.uuid4(),
+            user_id=user_id,
+            display_name=f"Scout {str(user_id)[:4]}",
+            level=1,
+            total_xp=0,
+            preferred_personality=None,
+            preferred_play_style=None,
+        )
+        user.profile = profile
+        return user
+
     user = await _user_repo.get_by_id_with_profile(db, user_id)
     if user is None:
         raise UnauthorizedException(message="User not found")

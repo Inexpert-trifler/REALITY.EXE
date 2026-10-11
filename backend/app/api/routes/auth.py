@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import CurrentUser
-from app.db.session import get_db
+from app.db.session import get_db_optional
 from app.schemas.auth import (
     LoginRequest,
     LoginResponse,
@@ -41,7 +41,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 )
 async def register(
     payload: RegisterRequest,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession | None = Depends(get_db_optional),
 ) -> RegisterResponse:
     """Create a new player account.
 
@@ -69,7 +69,7 @@ async def register(
 )
 async def login(
     payload: LoginRequest,
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession | None = Depends(get_db_optional),
 ) -> LoginResponse:
     """Authenticate with **email** and **password**.
 

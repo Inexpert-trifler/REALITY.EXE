@@ -12,7 +12,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.config import get_settings
 from app.core.exceptions import UnauthorizedException
-from app.db.session import get_db
+from app.db.session import get_db_optional
 from app.models.user import User
 from app.services.auth_service import get_current_user_by_id
 from app.utils.jwt import TokenError, decode_access_token
@@ -26,7 +26,7 @@ _bearer_scheme = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_scheme)],
-    db=Depends(get_db),
+    db=Depends(get_db_optional),
 ) -> User:
     """Validate the Bearer token and return the authenticated User."""
     if credentials is None:

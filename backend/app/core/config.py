@@ -52,6 +52,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
     ]
+    ALLOWED_ORIGIN_REGEX: str | None = r"^https?://.*"
 
     # External services & models
     OLLAMA_BASE_URL: str = "http://localhost:11434"

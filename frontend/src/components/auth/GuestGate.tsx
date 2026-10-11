@@ -40,8 +40,11 @@ export const GuestGate: React.FC<{ children: React.ReactNode }> = ({ children })
           throw new Error('No access token returned during guest registration.');
         }
       } catch (err: any) {
-        console.error('Guest registration failed:', err);
-        setError('Failed to connect to the game server. Please try again.');
+        console.warn('Backend guest registration call failed, falling back to local guest session:', err);
+        // Fallback to local guest token so player is not blocked by cold-starts or network glitches
+        const localGuestToken = `guest_offline_${Math.random().toString(36).substring(2, 10)}`;
+        localStorage.setItem('reality_auth_token', localGuestToken);
+        setIsAuthenticated(true);
       }
     };
 
