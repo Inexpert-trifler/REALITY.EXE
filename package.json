@@ -1,0 +1,17 @@
+{
+  "name": "reality.exe",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm --prefix frontend run build",
+    "dev": "npm --prefix frontend run dev",
+    "lint": "npm --prefix frontend run lint",
+    "preview": "npm --prefix frontend run preview"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "esbuild@0.21.5": true
+  }
+}
